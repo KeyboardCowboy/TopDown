@@ -72,8 +72,7 @@ class TopDown {
     $content[] = '';
     $content[] = '---';
     $content[] = '';
-    $content[] = "_Sidebar generated with [TopDown](https://github.com/KeyboardCowboy/TopDown)_";
-    $content[] = PHP_EOL . "_Manual changes may be overridden._";
+    $content[] = "_Sidebar generated with [TopDown](https://github.com/KeyboardCowboy/TopDown).  Manual changes may be overridden._";
 
     // Write the file.
     file_put_contents($filename, implode(PHP_EOL, $content));
