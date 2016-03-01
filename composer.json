@@ -1,0 +1,14 @@
+{
+    "name": "keyboardcowboy/topdown",
+    "description": "Markdown Table of Contents Generator",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "KeyboardCowboy",
+            "email": "chris@lullabot.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0"
+    }
+}
