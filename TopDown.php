@@ -14,6 +14,13 @@ class TopDown {
   // The hierarchical content.
   private $content = [];
 
+  // Whether to trim off the file extensions when creating links.  GitHub Wikis
+  // don't use file extensions.
+  public $fileExt = TRUE;
+
+  // Files to ignore.
+  public $ignore = ['_Sidebar.md', '_Footer.md'];
+
   /**
    * TopDown constructor.
    *
@@ -22,7 +29,7 @@ class TopDown {
    *
    * @throws Exception
    */
-  public function __construct($directory = '') {
+  public function __construct($directory = '.') {
     if (is_dir($directory)) {
       $this->dir = $directory;
 
@@ -31,53 +38,6 @@ class TopDown {
     }
     else {
       throw new Exception("Invalid directory.");
-    }
-  }
-
-  /**
-   * Load files from the directory.
-   */
-  private function _loadFiles() {
-    $this->files = glob("*.md");
-
-    // Ignore certain files.
-    $this->files = array_diff($this->files, ['_Sidebar.md', '_Footer.md']);
-  }
-
-  /**
-   * Create a hierarchy of files.
-   */
-  private function _processHierarchy() {
-    foreach ($this->files as $file) {
-      // Convert title characters.
-      $path = str_replace('.md', '', $file);
-
-      // Split into hierarchy.
-      $parts = explode('__', $path);
-      $this->_buildHierarchy($this->content, $parts);
-    }
-  }
-
-  /**
-   * Recursive helper to build file hierarchy.
-   *
-   * @param $parent
-   * @param $children
-   * @param $path
-   */
-  private function _buildHierarchy(&$parent, $children, $path = []) {
-    $child = array_shift($children);
-
-    // Build the path for this child.
-    $path[] = $child;
-    $child_path = implode('__', $path);
-
-    if (!isset($parent[$child_path])) {
-      $parent[$child_path]['#title'] = self::convertToTitle($child);
-    }
-
-    if (!empty($children)) {
-      $this->_buildHierarchy($parent[$child_path], $children, $path);
     }
   }
 
@@ -108,13 +68,63 @@ class TopDown {
     }
 
     // Add a footnote.
+    // @todo: Move this into an includable MD file.
     $content[] = '';
     $content[] = '---';
     $content[] = '';
-    $content[] = "_Sidebar auto-generated with [TopDown](TopDown)_";
+    $content[] = "_Sidebar generated with [TopDown](https://github.com/KeyboardCowboy/TopDown)_";
+    $content[] = PHP_EOL . "_Manual changes may be overridden._";
 
     // Write the file.
     file_put_contents($filename, implode(PHP_EOL, $content));
+  }
+
+  /**
+   * Load files from the directory.
+   */
+  private function _loadFiles() {
+    $this->files = glob("*.md");
+
+    // Ignore certain files.
+    $this->files = array_diff($this->files, $this->ignore);
+  }
+
+  /**
+   * Create a hierarchy of files.
+   */
+  private function _processHierarchy() {
+    foreach ($this->files as $file) {
+      // Remove file extensions.  We will add them in as we create the links to
+      // preserve hierarchy.
+      $file = str_replace('.md', '', $file);
+
+      // Split into hierarchy.
+      $parts = explode('__', $file);
+      $this->_buildHierarchy($this->content, $parts);
+    }
+  }
+
+  /**
+   * Recursive helper to build file hierarchy.
+   *
+   * @param $parent
+   * @param $children
+   * @param $path
+   */
+  private function _buildHierarchy(&$parent, $children, $path = []) {
+    $child = array_shift($children);
+
+    // Build the path for this child.
+    $path[] = $child;
+    $child_path = implode('__', $path);
+
+    if (!isset($parent[$child_path])) {
+      $parent[$child_path]['#title'] = self::convertToTitle($child);
+    }
+
+    if (!empty($children)) {
+      $this->_buildHierarchy($parent[$child_path], $children, $path);
+    }
   }
 
   /**
@@ -129,8 +139,15 @@ class TopDown {
     $title = $item['#title'];
     unset($item['#title']);
 
-    $content[] = str_repeat(' ', 2 * $depth) . "- [{$title}]({$path})";
+    // Add the file to the structure.
+    $filename = "{$path}.md";
+    $path = !$this->fileExt ? $path : $filename;
+    $bullet = str_repeat(' ', 2 * $depth) . "- ";
+    $line = file_exists("{$this->dir}/{$filename}") ? "[{$title}]({$path})" : $title;
 
+    $content[] = "{$bullet}{$line}";
+
+    // Process children.
     if (!empty($item)) {
       $depth++;
       foreach ($item as $child_path => $child) {
