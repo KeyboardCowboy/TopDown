@@ -4,9 +4,6 @@
  * Topdown: Organize your markdown files into a table of contents.
  */
 
-$sidebar = new TopDown();
-$sidebar->create('_Sidebar.md');
-
 class TopDown {
   // The directory to scan for files.
   private $dir;
