@@ -5,6 +5,10 @@
  */
 
 class TopDown {
+  // Constants to define the list format.
+  const UNORDERED = 0;
+  const ORDERED = 1;
+
   // The directory to scan for files.
   private $dir;
 
@@ -14,12 +18,18 @@ class TopDown {
   // The hierarchical content.
   private $content = [];
 
+  // The H1 of the resulting file.
+  public $title = 'Table of Contents';
+
+  // The list format.
+  public $format = self::UNORDERED;
+
   // Whether to trim off the file extensions when creating links.  GitHub Wikis
   // don't use file extensions.
   public $fileExt = TRUE;
 
   // Files to ignore.
-  public $ignore = ['_Sidebar.md', '_Footer.md'];
+  public $ignore = [];
 
   /**
    * TopDown constructor.
@@ -49,8 +59,13 @@ class TopDown {
    * @return string
    */
   public static function convertToTitle($string) {
+    // If the filename is prefixed with a number for sorting, trim it off.
+    $string = preg_replace('/^(\d+\.(\ +)?)|(\d+\-)/', '', $string);
+
     // Run basic substitutions.
-    return strtr($string, ['.md' => '', '-' => ' ']);
+    $string = strtr($string, ['.md' => '', '-' => ' ']);
+
+    return $string;
   }
 
   /**
@@ -60,7 +75,7 @@ class TopDown {
    */
   public function create($filename) {
     // Set the header.
-    $content = ['# Table of Contents'];
+    $content = ["# {$this->title}"];
 
     // Add the contents of the markdown files.
     foreach ($this->content as $path => $item) {
@@ -138,10 +153,10 @@ class TopDown {
     $title = $item['#title'];
     unset($item['#title']);
 
-    // Add the file to the structure.
+    // Construct the line item.
     $filename = "{$path}.md";
-    $path = !$this->fileExt ? $path : $filename;
-    $bullet = str_repeat(' ', 2 * $depth) . "- ";
+    $path = $this->fileExt ? $filename : $path;
+    $bullet = str_repeat(' ', 2 * $depth) . ($this->format == self::ORDERED ? "1. " : "- ");
     $line = file_exists("{$this->dir}/{$filename}") ? "[{$title}]({$path})" : $title;
 
     $content[] = "{$bullet}{$line}";
@@ -153,5 +168,17 @@ class TopDown {
         $this->_addItem($content, $child_path, $child, $depth);
       }
     }
+  }
+}
+
+/**
+ * Subclass for GitHub Wikis.
+ */
+class GitHubWikiSidebar extends TopDown {
+  public $fileExt = FALSE;
+  public $ignore = ['_Sidebar.md', '_Footer.md', 'Home.md'];
+
+  public function create() {
+    parent::create('_Sidebar.md');
   }
 }
