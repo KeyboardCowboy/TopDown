@@ -1,18 +1,19 @@
 # TopDown
 **Generate a Table of Contents for your markdown files.**
 
-This was inspired by the GitHub wiki.  Its usefulness is trumped by the lack of organization and the ease with which you can break a link by changing a file name.  With TopDown you can generate a simple Table of Contents, for example the `_Sidebar.md` file, just by naming your files well.
+https://github.com/KeyboardCowboy/TopDown
+
+This was inspired by the GitHub wiki.  Its usefulness is trumped by the the fact that the sidebar is in no way connected to the wiki pages. You can break a link by changing a page name.  With TopDown you can generate a simple Table of Contents, for example the `_Sidebar.md` file in GitHub, just by using a simple naming convention.
 
 ## How it Works
 1. Install this library.
 2. Create a PHP file and include TopDown.php.
 3. Tell TopDown where the files live and the name of the TOC file to create.
-```
-$sidebar = new TopDown(‘/path/to/files’);
-$sidebar->create('_Sidebar.md');
-```
+		$sidebar = new TopDown('/path/to/files');
+		$sidebar->create('TableOfContents.md');
 
-This will create the file `/path/to/files/_Sidebar.md`
+
+This will create the file `/path/to/files/TableOfContents.md`
 
 ## With GitHub
 GitHub wikis are their own repos.  Check yours out to your local machine instead of editing the files in the UI.  When you are done creating or editing your files, run TopDown and your sidebar is ready to go!
@@ -33,15 +34,14 @@ Now, simply run `php buildSidebar.php`!  That’s it!
 ## File Names
 TopDown relies on a simple naming convention to generate the hierarchy.  By default a double-hyphen is used as the hierarchical separator, but you can tell TopDown to use any string as the separator.  For example:
 
-```
-contributing.md
-contributing--configuration.md
-contributing--configuration--advanced.md
-contributing--configuration--beginner.md
-contributing--getting-started.md
-contributing--giving-back.md
-more.md
-```
+	contributing.md
+	contributing--configuration.md
+	contributing--configuration--advanced.md
+	contributing--configuration--beginner.md
+	contributing--getting-started.md
+	contributing--giving-back.md
+	more.md
+
 
 Would generate a table of contents like this:
 
@@ -55,15 +55,13 @@ Would generate a table of contents like this:
 
 TopDown reads the files out of the given directory top down, which is generally alphabetically, so to rearrange items simply prefix them with a number.
 
-```
-contributing.md
-contributing--1-getting-started.md
-contributing--2-configuration.md
-contributing--2-configuration--1-beginner.md
-contributing--2-configuration--2-advanced.md
-contributing--3-giving-back.md
-more.md
-```
+	contributing.md
+	contributing--1-getting-started.md
+	contributing--2-configuration.md
+	contributing--2-configuration--1-beginner.md
+	contributing--2-configuration--2-advanced.md
+	contributing--3-giving-back.md
+	more.md
 
 File names that begin with a number then a period or hyphen will have that part trimmed off to generate the link name.
 
