@@ -24,12 +24,13 @@ There is a subclass to make generating GitHub Wiki sidebars super simple.
 1. Check out your wiki repo and `cd` into it.
 2. Run `composer require keyboardcowboy/topdown`
 3. Add a php file, for example `buildSidebar.php` to the repo then copy and paste this snippet:
+
 		<?php
 		require_once 'vendor/keyboardcowboy/topdown/TopDown.php';
 		
 		$sidebar = new GitHubWikiSidebar();
 		$sidebar->create();
-		
+
 Now, simply run `php buildSidebar.php`!  That’s it!
 
 ## File Names
