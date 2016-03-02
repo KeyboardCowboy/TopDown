@@ -28,6 +28,9 @@ class TopDown {
   // don't use file extensions.
   public $fileExt = TRUE;
 
+  // The hierarchical separator.
+  public $separator = '--';
+
   // Files to ignore.
   public $ignore = [];
 
@@ -113,7 +116,7 @@ class TopDown {
       $file = str_replace('.md', '', $file);
 
       // Split into hierarchy.
-      $parts = explode('__', $file);
+      $parts = explode($this->separator, $file);
       $this->_buildHierarchy($this->content, $parts);
     }
   }
@@ -130,7 +133,7 @@ class TopDown {
 
     // Build the path for this child.
     $path[] = $child;
-    $child_path = implode('__', $path);
+    $child_path = implode($this->separator, $path);
 
     if (!isset($parent[$child_path])) {
       $parent[$child_path]['#title'] = self::convertToTitle($child);
