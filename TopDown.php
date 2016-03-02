@@ -9,6 +9,9 @@ class TopDown {
   const UNORDERED = 0;
   const ORDERED = 1;
 
+  // The directory of the TopDown.php file.
+  private $home;
+
   // The directory to scan for files.
   private $dir;
 
@@ -31,6 +34,9 @@ class TopDown {
   // The hierarchical separator.
   public $separator = '--';
 
+  // Override the default footer file.
+  public $footer;
+
   // Files to ignore.
   public $ignore = [];
 
@@ -45,9 +51,7 @@ class TopDown {
   public function __construct($directory = '.') {
     if (is_dir($directory)) {
       $this->dir = $directory;
-
-      $this->_loadFiles();
-      $this->_processHierarchy();
+      $this->home = __DIR__;
     }
     else {
       throw new Exception("Invalid directory.");
@@ -58,8 +62,10 @@ class TopDown {
    * Clean up file names to create titles.
    *
    * @param $string
+   *   String to convert to a link name.
    *
    * @return string
+   *   The converted string.
    */
   public static function convertToTitle($string) {
     // If the filename is prefixed with a number for sorting, trim it off.
@@ -75,8 +81,20 @@ class TopDown {
    * Create the file.
    *
    * @param $filename
+   *   The name of the file to generate.
    */
   public function create($filename) {
+    // Ignore the custom footer file if it is set.
+    if (!empty($this->footer)) {
+      $this->ignore[] = $this->footer;
+    }
+
+    // Load the files from the directory.
+    $this->_loadFiles();
+
+    // Process the files into a usable hierarchy of info.
+    $this->_processHierarchy();
+
     // Set the header.
     $content = ["# {$this->title}"];
 
@@ -86,11 +104,9 @@ class TopDown {
     }
 
     // Add a footnote.
-    // @todo: Move this into an includable MD file.
-    $content[] = '';
-    $content[] = '---';
-    $content[] = '';
-    $content[] = "_Sidebar generated with [TopDown](https://github.com/KeyboardCowboy/TopDown).  Manual changes may be overridden._";
+    if ($this->footer !== FALSE) {
+      $this->_attachFooter($content);
+    }
 
     // Write the file.
     file_put_contents($filename, implode(PHP_EOL, $content));
@@ -171,6 +187,24 @@ class TopDown {
         $this->_addItem($content, $child_path, $child, $depth);
       }
     }
+  }
+
+  /**
+   * Load the footer contents and attach it to the output file content.
+   *
+   * @param array $content
+   *   The array of content for the output file.
+   */
+  private function _attachFooter(array &$content) {
+    if (!empty($this->footer) && file_exists("{$this->dir}/{$this->footer}")) {
+      $path = "{$this->dir}/{$this->footer}";
+    }
+    else {
+      $path = "{$this->home}/_footer.md";
+    }
+
+    $footer = explode(PHP_EOL, file_get_contents($path));
+    $content = array_merge($content, $footer);
   }
 }
 

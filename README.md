@@ -91,3 +91,6 @@ File names that begin with a number then a period or hyphen will have that part 
 
 `TopDown::ignore` *array*
 : An array of filenames to ignore.
+
+`TopDown::footer` *string*
+: A custom file to use to generate the footer below the table of contents.  Use `FALSE` to disable the footer content.
