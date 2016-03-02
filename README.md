@@ -9,6 +9,7 @@ This was inspired by the GitHub wiki.  Its usefulness is trumped by the the fact
 1. Install this library.
 2. Create a PHP file and include TopDown.php.
 3. Tell TopDown where the files live and the name of the TOC file to create.
+
 		$sidebar = new TopDown('/path/to/files');
 		$sidebar->create('TableOfContents.md');
 
